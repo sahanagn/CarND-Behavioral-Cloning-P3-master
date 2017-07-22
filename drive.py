@@ -69,8 +69,7 @@ def telemetry(sid, data):
         blurred_img = cv2.GaussianBlur(cropped_img, (3,3), 0)
         #resize blurred image
         processed_img = cv2.resize(blurred_img,(200, 66), interpolation = cv2.INTER_AREA)
-        image_array = processed_img
-        steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
+        steering_angle = float(model.predict(processed_img[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
 
