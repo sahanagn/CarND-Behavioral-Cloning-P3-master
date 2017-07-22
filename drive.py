@@ -12,6 +12,10 @@ from PIL import Image
 from flask import Flask
 from io import BytesIO
 
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import cv2
+
 from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
@@ -61,6 +65,11 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        cropped_img = image_array[50:140][:]
+        blurred_img = cv2.GaussianBlur(cropped_img, (3,3), 0)
+        #resize blurred image
+        processed_img = cv2.resize(blurred_img,(200, 66), interpolation = cv2.INTER_AREA)
+        image_array = processed_img
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
