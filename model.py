@@ -46,8 +46,8 @@ def augment_brightness_camera_images(image):
 
 def preprocess(img):
     cropped_img = img[50:140][:]
-    blurred_img = cv2.GaussianBlur(cropped_img, (3,3), 0)
-    #blurred_img = cropped_img
+    #blurred_img = cv2.GaussianBlur(cropped_img, (3,3), 0)
+    blurred_img = cropped_img
     #resize blurred image
     blurred_img = cv2.resize(blurred_img,(200, 66), interpolation = cv2.INTER_AREA)
     return blurred_img
@@ -135,11 +135,11 @@ def train_model(model, img_dir, X_train, X_valid, y_train, y_valid):
                                  mode='auto')
 
     model.compile(loss='mean_squared_error', optimizer=Adam(lr=1.0e-4))
-    batch_size = 120
+    batch_size = 600
     print('X_train shape', X_train.shape)
     # Each of the left,right and center images(3) is augmented to create 4 images including original
     samples_per_epoch = X_train.shape[0] * 3 * 4
-    nb_epoch = 5
+    nb_epoch = 10
         
     model.fit_generator(batch_generator(img_dir, X_train, y_train, batch_size, True),
                         samples_per_epoch,
@@ -152,7 +152,7 @@ def train_model(model, img_dir, X_train, X_valid, y_train, y_valid):
     
 def main():
 	data = load_data('data', 0.2)
-	model = build_model((66,200,3), 0.5)
+	model = build_model((66,200,3), 0.6)
 	train_model(model, 'data', *data)
 	model.save('./model.h5')
 
