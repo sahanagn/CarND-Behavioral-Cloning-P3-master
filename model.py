@@ -34,9 +34,11 @@ def load_image(data_dir, image_file):
     return mpimg.imread(os.path.join(data_dir, image_file.strip()))
 
 def augment_brightness_camera_images(image):
+    """
+    Increases or decreases brightness of the given image by random
+    """
     image1 = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
     image1 = np.array(image1, dtype = np.float64)
-    # Increase or decrease brightness by random
     random_bright = 1.0 - 0.5 + np.random.uniform()
     image1[:,:,2] = image1[:,:,2]*random_bright
     image1[:,:,2][image1[:,:,2]>255]  = 255
@@ -45,15 +47,22 @@ def augment_brightness_camera_images(image):
     return image1
 
 def preprocess(img):
+    """
+    Crops the image to remove sky and other unnecessary parts of the image and
+    resizes the image to the input size of the model.
+    """
     cropped_img = img[50:140][:]
-    #blurred_img = cv2.GaussianBlur(cropped_img, (3,3), 0)
-    blurred_img = cropped_img
-    #resize blurred image
-    blurred_img = cv2.resize(blurred_img,(200, 66), interpolation = cv2.INTER_AREA)
-    return blurred_img
+    resized_img = cv2.resize(cropped_img,(200, 66), interpolation = cv2.INTER_AREA)
+    return resized_img
 
 
 def gen_data(img, steer_value):
+    """
+    For the given image it generates 3 images.
+    1. Flipped image with opposite sign of steering angle
+    2. Brightness changed original image
+    3. Flipped image of brightness changed image with opposite sign of steering angle
+    """
     images = np.empty([3, 66,200,3])
     steer_values = np.empty([3])
     images[0] = augment_brightness_camera_images(img)
@@ -66,6 +75,10 @@ def gen_data(img, steer_value):
     return images, steer_values
 
 def gen_all_cam_data(center, left, right, steer_value):
+    """
+    Creates 12 training data from 3 images(center, left, right). For each image 4 images are 
+    created.
+    """
     images = np.empty([12, 66,200,3])
     steer_values = np.empty([12])
     images[0:3], steer_values[0:3] = gen_data(center, steer_value)
